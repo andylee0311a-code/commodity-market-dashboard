@@ -139,3 +139,123 @@ html { transition: font-size 160ms ease; }
 @media (max-width: 430px) {
   .font-size-control button { min-width: 38px; padding-inline: 8px; }
 }
+
+/* Mobile landscape: release the frozen header so the chart remains reachable and visible. */
+@media (orientation: landscape) and (max-height: 600px) and (max-width: 1180px) {
+  .shell {
+    width: min(100% - 20px, 1500px);
+    padding-top: 10px;
+  }
+
+  .sticky-zone {
+    position: static;
+    max-height: none;
+    margin-top: 0;
+    padding: 0;
+    overflow: visible;
+    overscroll-behavior: auto;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .hero {
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .eyebrow {
+    margin-bottom: 2px;
+    font-size: 0.6rem;
+  }
+
+  .sticky-zone h1 {
+    font-size: clamp(1.25rem, 3.2vw, 1.75rem);
+    line-height: 1.05;
+  }
+
+  .subtitle {
+    margin-top: 3px;
+    font-size: 0.7rem;
+  }
+
+  .hero-actions {
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin-top: 0;
+  }
+
+  .font-size-control,
+  .theme-toggle {
+    min-height: 30px;
+  }
+
+  .font-size-control button {
+    min-width: 30px;
+    padding: 4px 6px;
+  }
+
+  .theme-toggle {
+    padding: 4px 7px;
+    border-radius: 8px;
+  }
+
+  .updated-box {
+    min-width: 128px;
+    text-align: right;
+  }
+
+  .updated-box span {
+    margin-bottom: 1px;
+    font-size: 0.6rem;
+  }
+
+  .updated-box strong { font-size: 0.68rem; }
+
+  .controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    padding: 8px;
+    border-radius: 12px;
+  }
+
+  .control-group label {
+    margin-bottom: 3px;
+    font-size: 0.65rem;
+  }
+
+  .asset-toggles,
+  .range-buttons,
+  .date-row {
+    gap: 4px;
+  }
+
+  .asset-toggle,
+  .range-buttons button,
+  .primary {
+    min-height: 28px;
+    padding: 3px 7px;
+    border-radius: 7px;
+  }
+
+  select,
+  input[type="date"] {
+    height: 28px;
+    padding: 0 7px;
+    border-radius: 7px;
+  }
+
+  .summary-grid { margin-top: 10px; }
+
+  .chart-card { padding: 12px; }
+  .chart-heading { align-items: center; }
+  .chart-wrap {
+    height: max(300px, calc(100svh - 80px));
+    min-height: 300px;
+    margin-top: 10px;
+  }
+}
