@@ -1,7 +1,7 @@
 const ASSETS = {
-  gold: { name: "黃金", symbol: "GC=F", unit: "USD / oz", color: "#f5c451", decimals: 2 },
-  silver: { name: "白銀", symbol: "SI=F", unit: "USD / oz", color: "#c8d2df", decimals: 3 },
-  brent: { name: "布蘭特原油", symbol: "BZ=F", unit: "USD / bbl", color: "#55c2a5", decimals: 2 },
+  gold: { name: "黃金", symbol: "GC=F", unit: "USD / oz", colorVar: "--asset-gold", decimals: 2 },
+  silver: { name: "白銀", symbol: "SI=F", unit: "USD / oz", colorVar: "--asset-silver", decimals: 3 },
+  brent: { name: "布蘭特原油", symbol: "BZ=F", unit: "USD / bbl", colorVar: "--asset-brent", decimals: 2 },
 };
 
 const state = {
@@ -15,6 +15,8 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
+const rootStyles = () => getComputedStyle(document.documentElement);
+const cssVar = (name) => rootStyles().getPropertyValue(name).trim();
 
 function formatDate(date) {
   return new Intl.DateTimeFormat("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
@@ -53,7 +55,7 @@ function renderAssetToggles() {
   const container = $("assetToggles");
   container.innerHTML = Object.entries(ASSETS).map(([key, asset]) => `
     <button class="asset-toggle active" data-asset="${key}" aria-pressed="true">
-      <span class="dot" style="background:${asset.color}"></span>${asset.name}
+      <span class="dot" style="background:var(${asset.colorVar})"></span>${asset.name}
     </button>
   `).join("");
 
@@ -122,13 +124,14 @@ function renderCards() {
 function chartDatasets() {
   return [...state.selected].map((key) => {
     const asset = ASSETS[key];
+    const color = cssVar(asset.colorVar);
     const points = filteredPoints(key);
     const base = points[0]?.close || 1;
     return {
       label: asset.name,
       data: points.map((p) => ({ x: p.date, y: state.mode === "normalized" ? (p.close / base) * 100 : p.close })),
-      borderColor: asset.color,
-      backgroundColor: `${asset.color}22`,
+      borderColor: color,
+      backgroundColor: `${color}22`,
       borderWidth: 2.2,
       pointRadius: 0,
       pointHoverRadius: 4,
@@ -141,6 +144,10 @@ function chartDatasets() {
 function renderChart() {
   const ctx = $("priceChart");
   const datasets = chartDatasets();
+  const chartText = cssVar("--chart-text");
+  const chartLegend = cssVar("--chart-legend");
+  const chartGrid = cssVar("--chart-grid");
+  const chartGridSoft = cssVar("--chart-grid-soft");
   if (state.chart) state.chart.destroy();
 
   state.chart = new Chart(ctx, {
@@ -152,10 +159,12 @@ function renderChart() {
       interaction: { intersect: false, mode: "index" },
       animation: { duration: 260 },
       plugins: {
-        legend: { labels: { color: "#dce7f2", usePointStyle: true, pointStyle: "circle", padding: 20 } },
+        legend: { labels: { color: chartLegend, usePointStyle: true, pointStyle: "circle", padding: 20 } },
         tooltip: {
-          backgroundColor: "rgba(5, 14, 26, .95)",
-          borderColor: "rgba(151,180,211,.28)",
+          backgroundColor: cssVar("--tooltip-bg"),
+          borderColor: cssVar("--tooltip-border"),
+          titleColor: cssVar("--tooltip-text"),
+          bodyColor: cssVar("--tooltip-text"),
           borderWidth: 1,
           padding: 12,
           callbacks: {
@@ -173,18 +182,18 @@ function renderChart() {
         x: {
           type: "time",
           time: { tooltipFormat: "yyyy-MM-dd" },
-          grid: { color: "rgba(151,180,211,.08)" },
-          ticks: { color: "#8fa4ba", maxRotation: 0 },
+          grid: { color: chartGridSoft },
+          ticks: { color: chartText, maxRotation: 0 },
         },
         y: {
-          grid: { color: "rgba(151,180,211,.1)" },
+          grid: { color: chartGrid },
           ticks: {
-            color: "#8fa4ba",
+            color: chartText,
             callback: (value) => state.mode === "normalized" ? Number(value).toFixed(0) : Number(value).toLocaleString(),
           },
           title: {
             display: true,
-            color: "#8fa4ba",
+            color: chartText,
             text: state.mode === "normalized" ? "Index (Start = 100)" : "Price (USD)",
           },
         },
@@ -203,6 +212,46 @@ function renderChart() {
 function renderAll() {
   renderCards();
   renderChart();
+}
+
+function setTheme(theme, persist = true) {
+  document.documentElement.dataset.theme = theme;
+  if (persist) localStorage.setItem("commodity-theme", theme);
+
+  const nextTheme = theme === "dark" ? "light" : "dark";
+  const nextLabel = nextTheme === "light" ? "淺色模式" : "深色模式";
+  $("themeIcon").textContent = nextTheme === "light" ? "☀" : "☾";
+  $("themeLabel").textContent = nextLabel;
+  $("themeToggle").setAttribute("aria-label", `切換至${nextLabel}`);
+  $("themeToggle").setAttribute("title", `切換至${nextLabel}`);
+  $("themeToggle").setAttribute("aria-pressed", String(theme === "light"));
+
+  if (state.raw) renderChart();
+}
+
+function bindUtilityControls() {
+  const currentTheme = document.documentElement.dataset.theme === "light" ? "light" : "dark";
+  setTheme(currentTheme, false);
+
+  $("themeToggle").addEventListener("click", () => {
+    const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+  });
+
+  const topButton = $("topButton");
+  const updateTopButton = () => topButton.classList.toggle("visible", window.scrollY > 360);
+  window.addEventListener("scroll", updateTopButton, { passive: true });
+  updateTopButton();
+
+  topButton.addEventListener("click", () => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  });
+
+  const systemTheme = window.matchMedia("(prefers-color-scheme: light)");
+  systemTheme.addEventListener?.("change", (event) => {
+    if (!localStorage.getItem("commodity-theme")) setTheme(event.matches ? "light" : "dark", false);
+  });
 }
 
 function bindControls() {
@@ -238,6 +287,8 @@ function bindControls() {
 }
 
 async function init() {
+  bindUtilityControls();
+
   try {
     const response = await fetch("data/commodities.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
