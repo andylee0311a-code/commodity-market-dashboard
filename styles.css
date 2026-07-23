@@ -99,6 +99,24 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
 .shell { width: min(1500px, calc(100% - 40px)); margin: 0 auto; padding: 42px 0 60px; }
 
+.sticky-zone {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  max-height: calc(100vh - 8px);
+  margin-top: -18px;
+  padding: 18px 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 16px 32px color-mix(in srgb, var(--bg) 65%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.12);
+  backdrop-filter: blur(18px) saturate(1.12);
+}
+
 .hero {
   display: flex;
   justify-content: space-between;
@@ -253,6 +271,19 @@ select, input[type="date"] {
 
 @media (max-width: 720px) {
   .shell { width: min(100% - 24px, 1500px); padding-top: 24px; }
+  .sticky-zone {
+    position: static;
+    max-height: none;
+    margin-top: 0;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
   .hero { display: block; }
   .hero-actions { margin-top: 18px; justify-content: space-between; align-items: flex-end; }
   .updated-box { text-align: left; min-width: 0; }
