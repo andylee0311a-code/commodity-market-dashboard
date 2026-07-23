@@ -35,6 +35,102 @@ html { transition: font-size 160ms ease; }
   box-shadow: inset 0 0 0 1px var(--accent-border);
 }
 
+/* Compact frozen header: approximately 50% of the previous desktop height. */
+@media (min-width: 1181px) {
+  .shell { padding-top: 20px; }
+
+  .sticky-zone {
+    max-height: 260px;
+    margin-top: -8px;
+    padding: 8px 0 10px;
+  }
+
+  .hero {
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 10px;
+  }
+
+  .eyebrow {
+    margin-bottom: 3px;
+    font-size: 0.66rem;
+  }
+
+  .sticky-zone h1 {
+    font-size: clamp(1.55rem, 2.2vw, 2.35rem);
+    line-height: 1.02;
+  }
+
+  .subtitle {
+    margin-top: 5px;
+    font-size: 0.82rem;
+  }
+
+  .hero-actions {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .font-size-control,
+  .theme-toggle {
+    min-height: 34px;
+  }
+
+  .font-size-control button {
+    min-width: 34px;
+    padding: 6px 8px;
+  }
+
+  .theme-toggle {
+    padding: 6px 10px;
+    border-radius: 9px;
+  }
+
+  .updated-box { min-width: 160px; }
+  .updated-box span { margin-bottom: 2px; font-size: 0.7rem; }
+  .updated-box strong { font-size: 0.8rem; }
+
+  .notice {
+    padding: 7px 10px;
+    margin-bottom: 8px;
+  }
+
+  .controls {
+    grid-template-columns: minmax(220px, 1.15fr) minmax(150px, 0.6fr) minmax(360px, 1.3fr) minmax(390px, 1.4fr);
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+  }
+
+  .control-group label {
+    margin-bottom: 4px;
+    font-size: 0.7rem;
+  }
+
+  .asset-toggles,
+  .range-buttons,
+  .date-row {
+    gap: 5px;
+  }
+
+  .asset-toggle,
+  .range-buttons button,
+  .primary {
+    min-height: 30px;
+    padding: 4px 8px;
+    border-radius: 7px;
+  }
+
+  select,
+  input[type="date"] {
+    height: 30px;
+    padding: 0 8px;
+    border-radius: 7px;
+  }
+
+  .date-row input { min-width: 118px; }
+}
+
 @media (max-width: 720px) {
   .hero-actions { justify-content: flex-start; align-items: center; }
   .updated-box { flex: 1 1 100%; }
