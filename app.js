@@ -128,8 +128,10 @@ function chartDatasets() {
     const points = filteredPoints(key);
     const base = points[0]?.close || 1;
     return {
+      assetKey: key,
       label: asset.name,
       data: points.map((p) => ({ x: p.date, y: state.mode === "normalized" ? (p.close / base) * 100 : p.close })),
+      yAxisID: state.mode === "normalized" ? "y" : `y-${key}`,
       borderColor: color,
       backgroundColor: `${color}22`,
       borderWidth: 2.2,
@@ -139,6 +141,53 @@ function chartDatasets() {
       fill: false,
     };
   });
+}
+
+function buildYScales(chartText, chartGrid) {
+  if (state.mode === "normalized") {
+    return {
+      y: {
+        type: "linear",
+        position: "left",
+        grid: { color: chartGrid },
+        ticks: {
+          color: chartText,
+          callback: (value) => Number(value).toFixed(0),
+        },
+        title: {
+          display: true,
+          color: chartText,
+          text: "Index (Start = 100)",
+        },
+      },
+    };
+  }
+
+  const selectedKeys = [...state.selected];
+  return Object.fromEntries(selectedKeys.map((key, index) => {
+    const asset = ASSETS[key];
+    const color = cssVar(asset.colorVar);
+    return [`y-${key}`, {
+      type: "linear",
+      position: index % 2 === 0 ? "left" : "right",
+      display: true,
+      weight: selectedKeys.length - index,
+      grid: {
+        drawOnChartArea: index === 0,
+        color: index === 0 ? chartGrid : "transparent",
+      },
+      border: { color },
+      ticks: {
+        color,
+        callback: (value) => formatPrice(Number(value), asset),
+      },
+      title: {
+        display: true,
+        color,
+        text: `${asset.name} (${asset.unit})`,
+      },
+    }];
+  }));
 }
 
 function renderChart() {
@@ -156,7 +205,7 @@ function renderChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { intersect: false, mode: "index" },
+      interaction: { intersect: false, mode: "nearest", axis: "x" },
       animation: { duration: 260 },
       plugins: {
         legend: { labels: { color: chartLegend, usePointStyle: true, pointStyle: "circle", padding: 20 } },
@@ -169,8 +218,7 @@ function renderChart() {
           padding: 12,
           callbacks: {
             label: (context) => {
-              const key = [...state.selected][context.datasetIndex];
-              const asset = ASSETS[key];
+              const asset = ASSETS[context.dataset.assetKey];
               return state.mode === "normalized"
                 ? ` ${asset.name}: ${context.parsed.y.toFixed(2)}`
                 : ` ${asset.name}: ${formatPrice(context.parsed.y, asset)} ${asset.unit}`;
@@ -185,18 +233,7 @@ function renderChart() {
           grid: { color: chartGridSoft },
           ticks: { color: chartText, maxRotation: 0 },
         },
-        y: {
-          grid: { color: chartGrid },
-          ticks: {
-            color: chartText,
-            callback: (value) => state.mode === "normalized" ? Number(value).toFixed(0) : Number(value).toLocaleString(),
-          },
-          title: {
-            display: true,
-            color: chartText,
-            text: state.mode === "normalized" ? "Index (Start = 100)" : "Price (USD)",
-          },
-        },
+        ...buildYScales(chartText, chartGrid),
       },
     },
   });
