@@ -31,6 +31,9 @@
         enabled: true,
         speed: 0.08,
       },
+      drag: {
+        enabled: false,
+      },
       pinch: {
         enabled: true,
       },
@@ -39,7 +42,41 @@
     },
   };
 
-  Chart.defaults.plugins.zoom = zoomOptions;
+  /*
+   * Preserve chartjs-plugin-zoom's required nested defaults. Replacing the
+   * complete defaults object removed zoom.drag and caused beforeUpdate to read
+   * `enabled` from undefined while the chart was being constructed.
+   */
+  const existingDefaults = Chart.defaults.plugins.zoom || {};
+  const existingZoomDefaults = existingDefaults.zoom || {};
+
+  Chart.defaults.plugins.zoom = {
+    ...existingDefaults,
+    limits: {
+      ...(existingDefaults.limits || {}),
+      ...zoomOptions.limits,
+    },
+    pan: {
+      ...(existingDefaults.pan || {}),
+      ...zoomOptions.pan,
+    },
+    zoom: {
+      ...existingZoomDefaults,
+      ...zoomOptions.zoom,
+      wheel: {
+        ...(existingZoomDefaults.wheel || {}),
+        ...zoomOptions.zoom.wheel,
+      },
+      drag: {
+        ...(existingZoomDefaults.drag || {}),
+        ...zoomOptions.zoom.drag,
+      },
+      pinch: {
+        ...(existingZoomDefaults.pinch || {}),
+        ...zoomOptions.zoom.pinch,
+      },
+    },
+  };
 
   function currentChart() {
     if (typeof state !== "undefined" && state.chart) return state.chart;
@@ -152,10 +189,6 @@
     renderChart = function renderChartWithZoom() {
       baseRenderChart();
       const chart = currentChart();
-      if (chart) {
-        chart.options.plugins.zoom = zoomOptions;
-        chart.update("none");
-      }
       updateResetButton(chart);
       resizeChartSoon();
     };
