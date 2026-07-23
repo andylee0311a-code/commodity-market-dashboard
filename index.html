@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="font-size.css" />
   <link rel="stylesheet" href="asset-toggle.css" />
+  <link rel="stylesheet" href="chart-tools.css" />
 </head>
 <body>
   <main class="shell" id="pageTop">
@@ -100,7 +101,20 @@
           <h2 id="chartTitle">價格趨勢</h2>
           <p id="chartRangeLabel">—</p>
         </div>
-        <div class="legend-note">期貨報價｜USD</div>
+        <div class="chart-meta-actions">
+          <div class="legend-note">期貨報價｜USD</div>
+          <div class="chart-toolbar" role="group" aria-label="圖表檢視工具">
+            <button id="resetZoom" class="chart-tool-button" type="button" aria-label="重設圖表縮放" title="重設圖表縮放" disabled>
+              <span class="chart-tool-icon" aria-hidden="true">↺</span>
+              <span class="chart-tool-label">重設縮放</span>
+            </button>
+            <button id="fullscreenChart" class="chart-tool-button" type="button" aria-label="開啟圖表全螢幕" title="開啟圖表全螢幕" aria-pressed="false">
+              <span id="fullscreenIcon" class="chart-tool-icon" aria-hidden="true">⛶</span>
+              <span id="fullscreenLabel" class="chart-tool-label">全螢幕</span>
+            </button>
+          </div>
+          <div class="chart-interaction-hint">滾輪／雙指縮放・拖曳平移</div>
+        </div>
       </div>
       <div class="chart-wrap">
         <canvas id="priceChart"></canvas>
@@ -121,8 +135,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.2.0/dist/chartjs-plugin-zoom.min.js"></script>
   <script src="app.js"></script>
   <script src="legend-sync.js"></script>
+  <script src="fullscreen-zoom.js"></script>
   <script src="font-size.js"></script>
 </body>
 </html>
