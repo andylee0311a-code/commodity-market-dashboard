@@ -1,13 +1,13 @@
 const ASSETS = {
-  gold: { name: "暺?", symbol: "GC=F", unit: "USD / oz", colorVar: "--asset-gold", decimals: 2 },
-  silver: { name: "?賡?", symbol: "SI=F", unit: "USD / oz", colorVar: "--asset-silver", decimals: 3 },
-  brent: { name: "撣?孵?瘝?, symbol: "BZ=F", unit: "USD / bbl", colorVar: "--asset-brent", decimals: 2 },
+  gold: { name: "黃金", symbol: "GC=F", unit: "USD / oz", colorVar: "--asset-gold", decimals: 2 },
+  silver: { name: "白銀", symbol: "SI=F", unit: "USD / oz", colorVar: "--asset-silver", decimals: 3 },
+  brent: { name: "布蘭特原油", symbol: "BZ=F", unit: "USD / bbl", colorVar: "--asset-brent", decimals: 2 },
 };
 
 const FONT_SIZES = {
-  small: { label: "撠?蝝?, chartSize: 11 },
-  medium: { label: "璅?摮?", chartSize: 12 },
-  large: { label: "憭批?蝝?, chartSize: 14 },
+  small: { label: "小字級", chartSize: 11 },
+  medium: { label: "標準字級", chartSize: 12 },
+  large: { label: "大字級", chartSize: 14 },
 };
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -35,7 +35,7 @@ function formatDate(date) {
 }
 
 function formatPrice(value, asset) {
-  if (value == null || Number.isNaN(value)) return "??;
+  if (value == null || Number.isNaN(value)) return "—";
   return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: asset.decimals,
     maximumFractionDigits: asset.decimals,
@@ -92,7 +92,7 @@ function changeClass(value) {
 }
 
 function signedPct(value) {
-  if (value == null || Number.isNaN(value)) return "??;
+  if (value == null || Number.isNaN(value)) return "—";
   return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`;
 }
 
@@ -136,21 +136,21 @@ function renderCards() {
     const selectedClass = state.selected.has(key) ? "" : " style=\"opacity:.48\"";
 
     if (!summary) {
-      return `<article class="summary-card"${selectedClass}><h3 class="asset-name">${asset.name}</h3><p class="neutral">甇文???????/p></article>`;
+      return `<article class="summary-card"${selectedClass}><h3 class="asset-name">${asset.name}</h3><p class="neutral">此區間沒有資料</p></article>`;
     }
 
     return `
       <article class="summary-card"${selectedClass}>
         <div class="summary-top">
-          <div><h3 class="asset-name">${asset.name}</h3><span class="asset-symbol">${asset.symbol} 繚 ${asset.unit}</span></div>
+          <div><h3 class="asset-name">${asset.name}</h3><span class="asset-symbol">${asset.symbol} · ${asset.unit}</span></div>
           <span class="daily-change ${changeClass(summary.daily)}">${signedPct(summary.daily)}</span>
         </div>
         <div class="latest-price">${formatPrice(summary.last, asset)}</div>
-        <div class="asset-symbol">??唳?文</div>
+        <div class="asset-symbol">最新收盤價</div>
         <div class="period-stats">
-          <span>??撞頝?strong class="${changeClass(summary.period)}">${signedPct(summary.period)}</strong></span>
-          <span>???暺?strong>${formatPrice(summary.min, asset)}</strong></span>
-          <span>???暺?strong>${formatPrice(summary.max, asset)}</strong></span>
+          <span>區間漲跌<strong class="${changeClass(summary.period)}">${signedPct(summary.period)}</strong></span>
+          <span>區間低點<strong>${formatPrice(summary.min, asset)}</strong></span>
+          <span>區間高點<strong>${formatPrice(summary.max, asset)}</strong></span>
         </div>
       </article>`;
   }).join("");
@@ -361,16 +361,16 @@ function renderChart() {
     },
   });
 
-  $("chartTitle").textContent = state.mode === "normalized" ? "??撠”?? : "???寞頞典";
+  $("chartTitle").textContent = state.mode === "normalized" ? "區間相對表現" : "商品價格趨勢";
   const activePoints = Object.keys(ASSETS)
     .filter((key) => state.selected.has(key))
     .flatMap(filteredPoints);
 
   if (activePoints.length) {
     const dates = activePoints.map((point) => point.date).sort();
-    $("chartRangeLabel").textContent = `${formatDate(new Date(`${dates[0]}T00:00:00`))} ??${formatDate(new Date(`${dates.at(-1)}T00:00:00`))}`;
+    $("chartRangeLabel").textContent = `${formatDate(new Date(`${dates[0]}T00:00:00`))} — ${formatDate(new Date(`${dates.at(-1)}T00:00:00`))}`;
   } else {
-    $("chartRangeLabel").textContent = "??;
+    $("chartRangeLabel").textContent = "—";
   }
 
   updateResetButton(state.chart);
@@ -387,11 +387,11 @@ function setTheme(theme, persist = true) {
   if (persist) localStorage.setItem("commodity-theme", theme);
 
   const nextTheme = theme === "dark" ? "light" : "dark";
-  const nextLabel = nextTheme === "light" ? "瘛箄璅∪?" : "瘛梯璅∪?";
-  $("themeIcon").textContent = nextTheme === "light" ? "?" : "??;
+  const nextLabel = nextTheme === "light" ? "淺色模式" : "深色模式";
+  $("themeIcon").textContent = nextTheme === "light" ? "☀" : "☾";
   $("themeLabel").textContent = nextLabel;
-  $("themeToggle").setAttribute("aria-label", `????{nextLabel}`);
-  $("themeToggle").setAttribute("title", `????{nextLabel}`);
+  $("themeToggle").setAttribute("aria-label", `切換至${nextLabel}`);
+  $("themeToggle").setAttribute("title", `切換至${nextLabel}`);
   $("themeToggle").setAttribute("aria-pressed", String(theme === "light"));
 
   if (state.raw) renderChart();
@@ -408,7 +408,7 @@ function applyFontSize(size, persist = true) {
     button.setAttribute("aria-pressed", String(isActive));
   });
 
-  $("fontSizeControl").setAttribute("title", `?桀?雿輻${FONT_SIZES[safeSize].label}`);
+  $("fontSizeControl").setAttribute("title", `目前使用${FONT_SIZES[safeSize].label}`);
   window.Chart.defaults.font.size = FONT_SIZES[safeSize].chartSize;
   if (state.raw) renderChart();
 }
@@ -460,11 +460,11 @@ function bindChartTools() {
 
   function updateFullscreenButton() {
     const active = isNativeFullscreen() || isPseudoFullscreen();
-    fullscreenIcon.textContent = active ? "滮? : "??;
-    fullscreenLabel.textContent = active ? "??箏?Ｗ?" : "?刻撟?;
+    fullscreenIcon.textContent = active ? "⤡" : "⛶";
+    fullscreenLabel.textContent = active ? "退出全螢幕" : "全螢幕";
     fullscreenButton.setAttribute("aria-pressed", String(active));
-    fullscreenButton.setAttribute("aria-label", active ? "??箏?銵典?Ｗ?" : "???”?刻撟?);
-    fullscreenButton.setAttribute("title", active ? "??箏?銵典?Ｗ?" : "???”?刻撟?);
+    fullscreenButton.setAttribute("aria-label", active ? "退出圖表全螢幕" : "開啟圖表全螢幕");
+    fullscreenButton.setAttribute("title", active ? "退出圖表全螢幕" : "開啟圖表全螢幕");
   }
 
   function enterPseudoFullscreen() {
@@ -563,7 +563,7 @@ function bindControls() {
     const start = $("startDate").value;
     const end = $("endDate").value;
     if (!start || !end || start > end) {
-      window.alert("隢撓?交??????????);
+      window.alert("請輸入有效的開始與結束日期。");
       return;
     }
     state.customStart = start;
@@ -585,7 +585,7 @@ function showFatalError(message, error) {
 
 async function init() {
   if (!window.Chart) {
-    showFatalError("?”?辣頛憭望?嚗???渡????, new Error("Chart.js is unavailable"));
+    showFatalError("圖表元件載入失敗，請重新整理頁面。", new Error("Chart.js is unavailable"));
     return;
   }
 
@@ -597,7 +597,7 @@ async function init() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     state.raw = await response.json();
   } catch (error) {
-    showFatalError("?⊥?頛撣鞈?嚗?蝔??岫??, error);
+    showFatalError("無法載入市場資料，請稍後再試。", error);
     return;
   }
 
@@ -608,13 +608,13 @@ async function init() {
         timeStyle: "short",
         timeZone: "Asia/Taipei",
       }).format(new Date(state.raw.updated_at))
-      : "??;
+      : "—";
     $("demoBanner").classList.toggle("hidden", !state.raw.is_demo);
     renderAssetToggles();
     bindControls();
     renderAll();
   } catch (error) {
-    showFatalError("?”???仃??隢??唳???Ｕ?, error);
+    showFatalError("圖表初始化失敗，請重新整理頁面。", error);
   }
 }
 
