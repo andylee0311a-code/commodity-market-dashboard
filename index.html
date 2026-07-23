@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-theme="dark">
+<html lang="zh-Hant" data-theme="dark" data-font-size="medium">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,10 +10,16 @@
       const storedTheme = localStorage.getItem("commodity-theme");
       const preferredTheme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
       document.documentElement.dataset.theme = storedTheme || preferredTheme;
+
+      const storedFontSize = localStorage.getItem("commodity-font-size");
+      document.documentElement.dataset.fontSize = ["small", "medium", "large"].includes(storedFontSize)
+        ? storedFontSize
+        : "medium";
     })();
   </script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="font-size.css" />
 </head>
 <body>
   <main class="shell" id="pageTop">
@@ -25,6 +31,11 @@
           <p class="subtitle">追蹤黃金、白銀與布蘭特原油的歷史價格、區間漲跌與相對表現。</p>
         </div>
         <div class="hero-actions">
+          <div id="fontSizeControl" class="font-size-control" role="group" aria-label="調整畫面字級">
+            <button type="button" data-font-size="small" aria-label="使用小字級" title="小字級">A−</button>
+            <button type="button" data-font-size="medium" aria-label="使用標準字級" title="標準字級">A</button>
+            <button type="button" data-font-size="large" aria-label="使用大字級" title="大字級">A＋</button>
+          </div>
           <button id="themeToggle" class="theme-toggle" type="button" aria-label="切換顯示模式" title="切換顯示模式">
             <span id="themeIcon" class="theme-icon" aria-hidden="true">☀</span>
             <span id="themeLabel">淺色模式</span>
@@ -110,5 +121,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
   <script src="app.js"></script>
+  <script src="font-size.js"></script>
 </body>
 </html>
